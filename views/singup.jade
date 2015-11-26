@@ -1,0 +1,38 @@
+// Created by dentorfs_ on 19/11/15.
+extends layout
+
+block content
+
+    .row
+        form(action='/createAccount').col.s12
+            .row
+                .input-field.col.s6
+                    input#icon_prefix.validate(type='text')
+                    label(for='icon_prefix') First Name
+            .row
+                .input-field.col.s6
+                    input#last_name.validate(type='text')
+                    label(for='last_name') Last Name
+            .row
+                .input-field.col.s6
+                    input#password.validate(type='password')
+                    label(for='password') Password
+            .row
+                .input-field.col.s6
+                    input#repeatPassword.validate(type='password')
+                    label(for='repeatPassword') Repeat Password
+            .row
+                .input-field.col.s6
+                    input#email.validate(type='email')
+                    label(for='email') Email
+            .row
+                p
+                    input#organizer.filled-in(type='checkbox')
+                    label(for='organizer') Organize activities.
+                    input#joinActivities.filled-in(type='checkbox')
+                    label(for='joinActivities') Join activities
+            .row
+                p
+                    a#login-button.btn-large.waves-effect.waves-light.teal.lighten-1(href='/login') Sign-up
+                p
+                    a(href='/signup') Already have an Account? Log in here!
