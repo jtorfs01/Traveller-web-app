@@ -4,7 +4,7 @@ extends layout
 block content
 
  .row
-    form(action='/index/getAccount' method='get' id='getAccount' ).col.s12
+    form(action='/getAccount' method='get' id='getAccount' ).col.s12
         .row
             .input-field.col.s6
                 input#userName.validate(type='text' name='userName')
@@ -15,5 +15,5 @@ block content
                 label(for='password') Password
         .row
                 p
-                    a#login-button.btn-large.waves-effect.waves-light.teal.lighten-1(type='submit' form='getAccount') Login
+                    a#login-button.btn-large.waves-effect.waves-light.teal.lighten-1 Login
 
