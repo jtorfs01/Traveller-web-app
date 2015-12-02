@@ -1,17 +1,21 @@
 var express = require('express');
 var path = require('path');
+var mysql = require('mysql');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var mysql = require('mysql');
-
+var router = express.Router();
 var routes = require('./routes');
-/*var users = require('./routes_old/users');
-var singup = require('./routes_old/signup');
-var login = require('./routes_old/login');*/
 var app = express();
-module.exports = app;
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(function (req, res, next) {
+  res.contentType('text/html');
+  next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,33 +24,20 @@ app.set('view engine', 'jade');
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', routes);
 app.get('/login', routes);
 app.get('/singup', routes);
-app.get('/getAccount', routes);
-
-/*app.get('/', routes.index);
-app.get('/login', routes.login);
-app.get('/signup', routes.signup);*/
+app.post('/getAccount', routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
+    console.log(err);
   next(err);
-});
-
-connectionpool = mysql.createPool({
-  host     : process.env.OPENSHIFT_EXTMYSQL_DB_HOST,
-  user     : process.env.OPENSHIFT_MYSQL_DB_USERNAME,
-  password : process.env.OPENSHIFT_MYSQL_DB_PASSWORD,
-  port     :  process.env.OPENSHIFT_MYSQL_DB_PORT,
-  database : 'php'
 });
 
 // error handlers
@@ -73,5 +64,6 @@ app.use(function(err, req, res, next) {
   });
 });
 
+module.exports = app;
 
 
