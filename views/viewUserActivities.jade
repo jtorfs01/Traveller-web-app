@@ -1,0 +1,13 @@
+//Created by dentorfs_ on 05/12/15.
+extends layout
+
+block content
+  ul
+    each item, i in activities
+        li= item.NAME
+
+        p
+            a#login-button.btn-large.waves-effect.waves-light.teal.lighten-1(href='/OrganizeActivity') <%
+        p
+            a#login-button.btn-large.waves-effect.waves-light.teal.lighten-1(href='/OrganizeActivity') Create new activity
+

@@ -30,6 +30,8 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', routes);
 app.get('/login', routes);
 app.get('/singup', routes);
+app.get('/viewUserActivities', routes);
+app.get('/OrganizeActivity', routes);
 app.post('/getAccount', routes);
 
 // catch 404 and forward to error handler
