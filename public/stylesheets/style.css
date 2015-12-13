@@ -10,3 +10,5 @@ a {
 button {
   color: #00B7FF;
 }
+
+#map { height: 100%; }

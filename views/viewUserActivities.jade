@@ -4,10 +4,20 @@ extends layout
 block content
   ul
     each item, i in activities
-        li= item.NAME
+        li
+            p.light= item.NAME
 
-        p
-            a#login-button.btn-large.waves-effect.waves-light.teal.lighten-1(href='/OrganizeActivity') <%
+        li
+            p.light= item.DESCRIPTION
+
         p
             a#login-button.btn-large.waves-effect.waves-light.teal.lighten-1(href='/OrganizeActivity') Create new activity
+        div(id='map')
 
+            script.
+                function initMap() {
+                    var map = new google.maps.Map(document.getElementById('map'), {
+                        center: {lat: -34.397, lng: 150.644},
+                        zoom: 8
+                    });
+                }

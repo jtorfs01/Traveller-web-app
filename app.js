@@ -12,10 +12,10 @@ var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(function (req, res, next) {
+/*app.use(function (req, res, next) {
   res.contentType('text/html');
   next();
-});
+});*/
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

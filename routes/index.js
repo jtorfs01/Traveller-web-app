@@ -42,14 +42,14 @@ router.get('/login', function(req, res, next) {
 // GET Login info and long user in.
 router.post('/getAccount', function(req,res, next){
     console.log("GetAccount openend");
-    connectionpool.getConnection(function(err, connection) {
+    connectionpool.getConnection(function(err, connection1) {
         console.log('Trying to connect');
         console.log(req.body.password);
         if (!err) {
             console.log('Trying to execute query now'),
-                connectionpool.query('SELECT * FROM LOGIN WHERE (USERNAME ='   + connection.escape(req.body.userName) +
-                    'OR EMAIL =' +  connection.escape(req.body.userName)
-                         +') AND PASSWORD =' + (connection.escape(req.body.password)),
+                connectionpool.query('SELECT * FROM LOGIN WHERE (USERNAME ='   + connection1.escape(req.body.userName) +
+                    'OR EMAIL =' +  connection1.escape(req.body.userName)
+                         +') AND PASSWORD =' + (connection1.escape(req.body.password)),
                 function (err, rows) {
                     if (err) {
                         console.error(err);
@@ -58,14 +58,15 @@ router.post('/getAccount', function(req,res, next){
                             result: 'error',
                             err: err.code
                         });
-                        connection.release();
+                        connection1.release();
                         console.log('It doesnt work error 500');
                     }
                     if (rows.length == 0){
                      res.render('login', { title: 'Login - User not found' });
                      }
                     console.log('Go-TO next');
-                    getActivities(req, res,rows, connection);
+                    connection1.release();
+                    getActivities(req, res,rows);
                 });
         } else {
             console.error('CONNECTION error: ', err);
@@ -80,42 +81,51 @@ router.post('/getAccount', function(req,res, next){
 
 });
 
-function getActivities(req,res, rows, connection)
+function getActivities(req,res, rows)
 {
 
     rows.forEach(function getoutput(item) {
-        console.log('Trying to connect 2');
+        console.log("getActivities openend");
         console.log(item.USER_ID);
-        connectionpool.query('SELECT * FROM ACTIVITY WHERE LOGIN_ID ='  + connection.escape(item.USER_ID)),
-            function (err, rows) {
-                if (err) {
-                    console.error(err);
-                    res.statusCode = 500;
-                    res.send({
-                        result: 'error',
-                        err: err.code
-                    });
-                    connection.release();
-                    console.log('It doesnt work error 500');
-                }
-                if (rows.length == 0){
-                    res.render('viewUserActivities', { title: 'Activity - No activities found' });
-                }
-                console.log('Passed query');
-                res.render('viewUserActivities',{
-                    result: 'success',
-                    err: '',
-                    //  fields: fields,
-                    activities: rows,
-                    title: "View your activities",
+        connectionpool.getConnection(function(err, connection2) {
+            console.log('Trying to connect to activities');
+            console.log(req.body.password);
+            if (!err) {
+                console.log('Trying to execute query for activities now'),
+                    connectionpool.query('SELECT * FROM ACTIVITY WHERE LOGIN_ID =' + connection2.escape(item.USER_ID),
+                        function (err, rows) {
+                            if (err) {
+                                console.error(err);
+                                res.statusCode = 500;
+                                res.send({
+                                    result: 'error',
+                                    err: err.code
+                                });
+                                connection.release();
+                                console.log('It doesnt work error 500');
+                            }
+                            if (rows.length == 0) {
+                                res.render('index', {title: 'Index - Activity not found'});
+                            }
+                            console.log('Show activities');
+                            connection2.release();
+                            res.render('viewUserActivities', {activities:rows , title: 'Created activities'});
+                        });
+            } else {
+                console.error('CONNECTION error: ', err);
+                res.statusCode = 503;
+                res.send({
+                    result: 'error',
+                    err: err.code
                 });
-                console.log('It works');
+                console.log('It does not work...');
             }
-
+        });
     });
 }
 
-router.get('/viewUserActivities', function(req, res, next) {
+
+        router.get('/viewUserActivities', function(req, res, next) {
     res.render('viewUserActivities', { title: 'View your activities (get)' });
 });
 
