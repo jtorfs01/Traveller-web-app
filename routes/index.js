@@ -101,15 +101,15 @@ function getActivities(req,res, rows)
                                     result: 'error',
                                     err: err.code
                                 });
-                                connection.release();
+                                connection2.release();
                                 console.log('It doesnt work error 500');
                             }
                             if (rows.length == 0) {
                                 res.render('index', {title: 'Index - Activity not found'});
                             }
-                            console.log('Show activities');
+                            console.log('Go-TO next');
                             connection2.release();
-                            res.render('viewUserActivities', {activities:rows , title: 'Created activities'});
+                            getActivitiesDate(req, res,rows);
                         });
             } else {
                 console.error('CONNECTION error: ', err);
@@ -124,8 +124,50 @@ function getActivities(req,res, rows)
     });
 }
 
+function getActivitiesDate(req,res, rows)
+{
+    rows.forEach(function getoutput(item) {
+        console.log("getActivitiesDate openend");
+        console.log(item.USER_ID);
+        connectionpool.getConnection(function(err, connection3) {
+            console.log('Trying to connect to activities date');
+            console.log(req.body.password);
+            if (!err) {
+                console.log('Trying to execute query for activities now'),
+                    connectionpool.query('SELECT * FROM CALENDAR_ACTIVITY WHERE ACTIVITY_ID =' + connection3.escape(item.ACTIVITY_ID),
+                        function (err, rows2) {
+                            if (err) {
+                                console.error(err);
+                                res.statusCode = 500;
+                                res.send({
+                                    result: 'error',
+                                    err: err.code
+                                });
+                                connection3.release();
+                                console.log('It doesnt work error 500');
+                            }
+                            if (rows2.length == 0) {
+                                res.render('index', {title: 'Index - Calendar Activity not found'});
+                            }
+                            console.log('Show activities + dates');
+                            connection3.release();
+                            console.log(rows2);
+                            res.render('viewUserActivities', {activities:rows, activityDates:rows2 , title: 'Created activities'});
+                        });
+            } else {
+                console.error('CONNECTION error: ', err);
+                res.statusCode = 503;
+                res.send({
+                    result: 'error',
+                    err: err.code
+                });
+                console.log('It does not work...');
+            }
+        });
+    });
+}
 
-        router.get('/viewUserActivities', function(req, res, next) {
+router.get('/viewUserActivities', function(req, res, next) {
     res.render('viewUserActivities', { title: 'View your activities (get)' });
 });
 
