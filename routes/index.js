@@ -126,12 +126,14 @@ function getActivities(req,res, rows)
 
 function getActivitiesDate(req,res, rows)
 {
+    var rowsArrayBracket = [];
+    var rowsArrayWithoutBracket = [];
+    var rowsResult = rows;
+    var rowsCounter = 1;
     rows.forEach(function getoutput(item) {
         console.log("getActivitiesDate openend");
-        console.log(item.USER_ID);
         connectionpool.getConnection(function(err, connection3) {
             console.log('Trying to connect to activities date');
-            console.log(req.body.password);
             if (!err) {
                 console.log('Trying to execute query for activities now'),
                     connectionpool.query('SELECT * FROM CALENDAR_ACTIVITY WHERE ACTIVITY_ID =' + connection3.escape(item.ACTIVITY_ID),
@@ -146,13 +148,29 @@ function getActivitiesDate(req,res, rows)
                                 connection3.release();
                                 console.log('It doesnt work error 500');
                             }
-                            if (rows2.length == 0) {
+                           /* if (rows2.length == 0) {
                                 res.render('index', {title: 'Index - Calendar Activity not found'});
+                            }*/
+                            console.log('result from rows2');
+                        
+                            for (i = 0; i < rows2.length; i++) {
+                                console.log('Number' + i + ' = ' + rows2[i]);
+                                rowsArrayWithoutBracket.push(rows2[i]);
                             }
+
+                           // rows3.push(rows2[0]);
+
+                            if(rowsCounter == rows.length){
                             console.log('Show activities + dates');
-                            connection3.release();
-                            console.log(rows2);
-                            res.render('viewUserActivities', {activities:rows, activityDates:rows2 , title: 'Created activities'});
+                            console.log('This is the result of rows2Result: ');
+                            console.log(rowsArrayWithoutBracket);
+
+                            res.render('viewUserActivities', {activities:rows, activityDates:rowsArrayWithoutBracket , title: 'Created activities'});
+                            } else {
+                                rowsCounter++;
+                            }
+
+                          //  connection3.release();
                         });
             } else {
                 console.error('CONNECTION error: ', err);
@@ -164,7 +182,9 @@ function getActivitiesDate(req,res, rows)
                 console.log('It does not work...');
             }
         });
+
     });
+
 }
 
 router.get('/viewUserActivities', function(req, res, next) {
