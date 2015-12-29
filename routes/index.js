@@ -18,7 +18,9 @@ var connectionpool = mysql.createPool({
     user     : 'root',
     port    : 3306,
     password : '3Ast:ak25',
-    database : 'GLOBE_CONNECT'
+    database : 'GLOBE_CONNECT',
+    connectionLimit : 151
+
 });
 console.log(connectionpool);
 
@@ -36,8 +38,6 @@ router.get('/singup', function(req, res, next) {
 router.get('/login', function(req, res, next) {
     res.render('login', { title: 'Login' });
 });
-
-
 
 // GET Login info and long user in.
 router.post('/getAccount', function(req,res, next){
@@ -152,7 +152,7 @@ function getActivitiesDate(req,res, rows)
                                 res.render('index', {title: 'Index - Calendar Activity not found'});
                             }*/
                             console.log('result from rows2');
-                        
+
                             for (i = 0; i < rows2.length; i++) {
                                 console.log('Number' + i + ' = ' + rows2[i]);
                                 rowsArrayWithoutBracket.push(rows2[i]);
@@ -193,6 +193,52 @@ router.get('/viewUserActivities', function(req, res, next) {
 
 router.get('/OrganizeActivity', function(req, res, next) {
     res.render('OrganizeActivity', { title: 'Organize a new activity' });
+});
+
+/* Save changes to existing activitie */
+router.post('/saveActivity', function(req, res, next) {
+
+    console.log('This is the name of the activity');
+    console.log(req.body.name);
+
+    //Open new connection
+    connectionpool.getConnection(function(err, connection4) {
+        console.log('Trying to connect');
+        console.log(req.body.password);
+        if (!err) {
+            console.log('Trying to execute query now'),
+                connectionpool.query('SELECT * FROM LOGIN WHERE (USERNAME ='   + connection4.escape(req.body.userName) +
+                    'OR EMAIL =' +  connection4.escape(req.body.userName)
+                    +') AND PASSWORD =' + (connection4.escape(req.body.password)),
+                    function (err, rows) {
+                        if (err) {
+                            console.error(err);
+                            res.statusCode = 500;
+                            res.send({
+                                result: 'error',
+                                err: err.code
+                            });
+                            connection4.release();
+                            console.log('It doesnt work error 500');
+                        }
+                        if (rows.length == 0){
+                            res.render('login', { title: 'Login - User not found' });
+                        }
+                        console.log('Go-TO next');
+                        connection4.release();
+                        getActivities(req, res,rows);
+                    });
+        } else {
+            console.error('CONNECTION error: ', err);
+            res.statusCode = 503;
+            res.send({
+                result: 'error',
+                err: err.code
+            });
+            console.log('It does not work...');
+        }
+    });
+
 });
 
 // GET account info and create new account.
