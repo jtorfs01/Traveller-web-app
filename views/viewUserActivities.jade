@@ -7,12 +7,16 @@ block content
 
         .card.large
             .card-image.waves-effect.waves-block.waves-light
-                div(id= item.ACTIVITY_ID)
+                div(value= item.ACTIVITY_ID, class='activityId', id='activityId')
+                input(type='text', class='activityId', id='activityId', value=item.ACTIVITY_ID, name='activityId', readonly)
             .card-content
               form(action='http://localhost:3000/saveActivity' method='post' id='getAccount' ).col.s6
+
+                input(type='text', class='activityId', id='activityId', value=item.ACTIVITY_ID, name='activityId', readonly)
+
                 button(type='button',id='edit', class='edit').btn-floating.btn-small.waves-effect.waves-light.red
                     i.material-icons.right edit
-                //a(href='#', id='save', class='save').i.material-icons.right save
+
                 button(type='submit',id='save', class='save').btn-floating.btn-small.waves-effect.waves-light.red
                       i.material-icons.right save
                 span.card-title.activator.grey-text.text-darken-4
@@ -28,15 +32,17 @@ block content
                 p.dark Pick-up location:
                 p.light=item.STREET + ', ' + item.CITY
 
-                select.browser-default.date_from
+                select(name='activityDates', class='activityDates').browser-default.date_from
                      each item2, i2 in activityDates
                         if(item.ACTIVITY_ID == item2.ACTIVITY_ID)
-                            option(value= item2.CALENDAR_ID)= item2.DATE_FROM
+                            option(value= item2.CALENDAR_ID)= moment(item2.DATE_FROM).format("MM-DD-YYYY HH:mm")
                       option(value='Add date') Add date
 
                 .input-field.col.s6
                    label(for='addDate', class='addDateLabel') Add a date and time (format: dd-mm-yyyy hh:mm) (Please use 24h format)
                    input(type='text', class='addDate', id='addDate', name='addDate', readonly)
+
+                   a#login-button.btn-small(href='#', class='addDateLink', name='addDateLink') Add date
 
 
          script.
@@ -46,6 +52,9 @@ block content
                  $('.addDate').css('display','none');
                  $('.addDateLabel').css('display', 'none');
                  $('.save').css('display', 'none');
+                 $('.activityId').css('display', 'none');
+                 $('.addDateLink').css('display', 'none');
+
                 // $('input.name, textarea.description').characterCounter()
 
                      $('button.edit').click(function () {
@@ -59,16 +68,34 @@ block content
                          change.find('.save').css('display', 'block');
                      });
 
+                 $('a.addDateLink').click(function () {
+                     //regex to check entry for datetime format: mm-dd-yyyy hh:mm
+                     var re = /^\d{1,2}\-\d{1,2}\-\d{4}\s\d{1,2}:\d{2}([ap]m)?$/;
+
+                     var x = $(".addDate").val();
+
+                     if (x.match(re)){
+                         alert('Its a match');
+                     } else {alert('its not a match')};
+
+                     if(x == ""){}
+                         else {
+                            $('.activityDates').append("<option value='custom'>" + x + "</option>");
+                              }
+                 });
+
                  $('.date_from').change(function () {
                      var selected = $(this).val();
                      if (selected == 'Add date') {
 
                          $('.addDate').css('display','block');
                          $('.addDateLabel').css('display', 'block');
+                         $('.addDateLink').css('display', 'block');
                      }
                      else {
                          $('.addDate').css('display','none');
                          $('.addDateLabel').css('display', 'none');
+                         $('.addDateLink').css('display', 'none');
                      }
                  });
 

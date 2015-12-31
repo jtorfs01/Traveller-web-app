@@ -4,24 +4,14 @@ var bodyParser;
 bodyParser = require('body-parser');
 var router = express.Router();
 var app = express();
+var activityDates = require('./getActivitiesDate');
+var connectionpool = require('../config/database');
+var moment = require('moment');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-var connectionpool = mysql.createPool({
-    /* host     : process.env.OPENSHIFT_EXTMYSQL_DB_HOST,
-     user     : process.env.OPENSHIFT_MYSQL_DB_USERNAME,
-     password : process.env.OPENSHIFT_MYSQL_DB_PASSWORD,
-     port     :  process.env.OPENSHIFT_MYSQL_DB_PORT,
-     database : 'php'*/
-    host    : '127.0.0.1',
-    user     : 'root',
-    port    : 3306,
-    password : '3Ast:ak25',
-    database : 'GLOBE_CONNECT',
-    connectionLimit : 151
 
-});
 console.log(connectionpool);
 
 /* GET home page. */
@@ -109,7 +99,7 @@ function getActivities(req,res, rows)
                             }
                             console.log('Go-TO next');
                             connection2.release();
-                            getActivitiesDate(req, res,rows);
+                            activityDates.activity(req, res,rows);
                         });
             } else {
                 console.error('CONNECTION error: ', err);
@@ -124,68 +114,7 @@ function getActivities(req,res, rows)
     });
 }
 
-function getActivitiesDate(req,res, rows)
-{
-    var rowsArrayBracket = [];
-    var rowsArrayWithoutBracket = [];
-    var rowsResult = rows;
-    var rowsCounter = 1;
-    rows.forEach(function getoutput(item) {
-        console.log("getActivitiesDate openend");
-        connectionpool.getConnection(function(err, connection3) {
-            console.log('Trying to connect to activities date');
-            if (!err) {
-                console.log('Trying to execute query for activities now'),
-                    connectionpool.query('SELECT * FROM CALENDAR_ACTIVITY WHERE ACTIVITY_ID =' + connection3.escape(item.ACTIVITY_ID),
-                        function (err, rows2) {
-                            if (err) {
-                                console.error(err);
-                                res.statusCode = 500;
-                                res.send({
-                                    result: 'error',
-                                    err: err.code
-                                });
-                                connection3.release();
-                                console.log('It doesnt work error 500');
-                            }
-                           /* if (rows2.length == 0) {
-                                res.render('index', {title: 'Index - Calendar Activity not found'});
-                            }*/
-                            console.log('result from rows2');
 
-                            for (i = 0; i < rows2.length; i++) {
-                                console.log('Number' + i + ' = ' + rows2[i]);
-                                rowsArrayWithoutBracket.push(rows2[i]);
-                            }
-
-                           // rows3.push(rows2[0]);
-
-                            if(rowsCounter == rows.length){
-                            console.log('Show activities + dates');
-                            console.log('This is the result of rows2Result: ');
-                            console.log(rowsArrayWithoutBracket);
-
-                            res.render('viewUserActivities', {activities:rows, activityDates:rowsArrayWithoutBracket , title: 'Created activities'});
-                            } else {
-                                rowsCounter++;
-                            }
-
-                          //  connection3.release();
-                        });
-            } else {
-                console.error('CONNECTION error: ', err);
-                res.statusCode = 503;
-                res.send({
-                    result: 'error',
-                    err: err.code
-                });
-                console.log('It does not work...');
-            }
-        });
-
-    });
-
-}
 
 router.get('/viewUserActivities', function(req, res, next) {
     res.render('viewUserActivities', { title: 'View your activities (get)' });
@@ -195,16 +124,19 @@ router.get('/OrganizeActivity', function(req, res, next) {
     res.render('OrganizeActivity', { title: 'Organize a new activity' });
 });
 
-/* Save changes to existing activitie */
+/* Save changes to existing activities */
 router.post('/saveActivity', function(req, res, next) {
 
     console.log('This is the name of the activity');
     console.log(req.body.name);
+    console.log(req.body.activityId);
+    console.log(req.body.activityDates);
 
     //Open new connection
     connectionpool.getConnection(function(err, connection4) {
         console.log('Trying to connect');
         console.log(req.body.password);
+
         if (!err) {
             console.log('Trying to execute query now'),
                 connectionpool.query('SELECT * FROM LOGIN WHERE (USERNAME ='   + connection4.escape(req.body.userName) +
