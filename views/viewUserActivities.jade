@@ -75,14 +75,11 @@ block content
                      var x = $(".addDate").val();
 
                      if (x.match(re)){
-                         alert('Its a match');
-                     } else {alert('its not a match')};
-
-                     if(x == ""){}
-                         else {
-                            $('.activityDates').append("<option value='custom'>" + x + "</option>");
-                              }
-                 });
+                         $('.activityDates').append("<option value='custom'>" + x + "</option>");
+                     } else {
+                         return false;
+                         //alert('its not a match')
+                     };
 
                  $('.date_from').change(function () {
                      var selected = $(this).val();
