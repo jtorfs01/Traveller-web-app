@@ -126,11 +126,21 @@ router.get('/OrganizeActivity', function(req, res, next) {
 
 /* Save changes to existing activities */
 router.post('/saveActivity', function(req, res, next) {
+    var extraDatesArray = [];
 
     console.log('This is the name of the activity');
     console.log(req.body.name);
-    console.log(req.body.activityId);
-    console.log(req.body.activityDates);
+  //  console.log(req.body.activityId);
+  //  console.log(req.body.activityDatesSelect);
+
+    extraDatesArray.push(req.body.activityDatesDiv);
+    console.log(extraDatesArray);
+
+    for(i = 0; i <= extraDatesArray.length; i++)
+    {
+        console.log(i);
+        console.log(extraDatesArray[i]);
+    }
 
     //Open new connection
     connectionpool.getConnection(function(err, connection4) {
