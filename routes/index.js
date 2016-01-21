@@ -5,6 +5,7 @@ bodyParser = require('body-parser');
 var router = express.Router();
 var app = express();
 var activityDates = require('./getActivitiesDate');
+var createAccount = require('./createAccount');
 var connectionpool = require('../config/database');
 var moment = require('moment');
 
@@ -184,8 +185,45 @@ router.post('/saveActivity', function(req, res, next) {
 });
 
 // GET account info and create new account.
-//router.get('/ceateAccount', function(req,res,next) {
+router.post('/createAccount', function(req, res, next) {
+    console.log("createAccount openend");
+    connectionpool.getConnection(function(err, connection5) {
+        console.log('Trying to connect');
+        console.log(req.body.password);
+        if (!err) {
+            console.log('Trying to execute query now');
+            console.log(req.body.firstName);
 
-//});
+            connectionpool.query('INSERT INTO LOGIN VALUES (' + connection5.escape(req.body.firstName) + ' , ' +
+                connection5.escape(req.body.password) + ' , ' +
+                connection5.escape(req.body.email)),
+                function (err, rows) {
+                    if (err) {
+                        console.error(err);
+                        res.statusCode = 500;
+                        res.send({
+                            result: 'error',
+                            err: err.code
+                        });
+                        connection5.release();
+                        console.log('It doesnt work error 500');
+                    }
+                    console.log('Created account.');
+                    connection5.release();
+                    getActivities(req, res,rows);
+                };
+        }
+        else {
+            console.error('CONNECTION error: ', err);
+            res.statusCode = 503;
+            res.send({
+                result: 'error',
+                err: err.code
+            });
+            console.log('It does not work...');
+        }
+    });
+});
+
 
 module.exports = router;

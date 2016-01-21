@@ -34,6 +34,7 @@ app.get('/viewUserActivities', routes);
 app.get('/OrganizeActivity', routes);
 app.post('/getAccount', routes);
 app.post('/saveActivity', routes);
+app.post('/createAccount', routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
